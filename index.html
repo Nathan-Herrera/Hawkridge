@@ -779,8 +779,6 @@ Confidentiality:
       showAuthError("Something went wrong. Check your connection.");
       btn.disabled = false;
       btn.textContent = isRegisterMode ? "Create account" : "Sign in";
-      const savedKey = localStorage.getItem("hw_api_key");
-if (savedKey) document.getElementById("api-key-input").value = savedKey;
     }
   }
 
@@ -806,7 +804,7 @@ if (savedKey) document.getElementById("api-key-input").value = savedKey;
     document.getElementById("user-badge").textContent = u;
     loadThreads();
     const savedKey = localStorage.getItem("hw_api_key");
-if (savedKey) document.getElementById("api-key-input").value = savedKey;
+    if (savedKey) document.getElementById("api-key-input").value = savedKey;
   }
 
   // Threads
@@ -968,6 +966,7 @@ if (savedKey) document.getElementById("api-key-input").value = savedKey;
     const apiKey = document.getElementById("api-key-input").value.trim();
     if (!apiKey) { alert("Please enter your Anthropic API key in the sidebar."); return; }
     if (!currentThreadId) return;
+    localStorage.setItem("hw_api_key", apiKey);
 
     // Save user message
     await sbPost("messages", {
