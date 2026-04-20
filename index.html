@@ -541,6 +541,46 @@
       font-size: 12px;
       color: var(--text-3);
     }
+
+    .threads-section-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-3);
+      padding: 8px 10px 4px;
+    }
+
+    .rock-item { border-left: 2px solid var(--accent); padding-left: 8px; }
+
+    .rock-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .thread-actions {
+      display: none;
+      gap: 2px;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .thread-item:hover .thread-actions { display: flex; }
+
+    .action-btn {
+      background: none;
+      border: none;
+      color: var(--text-3);
+      cursor: pointer;
+      padding: 2px 4px;
+      font-size: 12px;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+      font-family: inherit;
+    }
+    .action-btn:hover { color: var(--text); background: var(--bg-4); }
   </style>
 </head>
 <body>
@@ -815,22 +855,104 @@ Confidentiality:
 
   function renderThreads(threads) {
     const list = document.getElementById("threads-list");
-    if (!threads.length) {
+    const visible = threads.filter(t => !t.hidden);
+    const hidden = threads.filter(t => t.hidden);
+    const rocks = visible.filter(t => t.rock).sort((a,b) => a.rock_order - b.rock_order);
+    const regular = visible.filter(t => !t.rock);
+
+    if (!visible.length && !hidden.length) {
       list.innerHTML = '<div class="threads-empty">No threads yet</div>';
       return;
     }
-    list.innerHTML = threads.map(t => `
-      <div class="thread-item ${t.id === currentThreadId ? 'active' : ''}" data-thread-id="${t.id}" data-thread-title="${escHtml(t.title)}">
-        <div class="thread-title">${escHtml(t.title)}</div>
-        <div class="thread-meta">${escHtml(t.created_by)} - ${timeAgo(t.updated_at)}</div>
-      </div>
-    `).join("");
+
+    let html = "";
+
+    if (rocks.length) {
+      html += '<div class="threads-section-label">Month 1 rocks</div>';
+      html += rocks.map(t => threadItemHtml(t, true)).join("");
+    }
+
+    if (regular.length) {
+      if (rocks.length) html += '<div class="threads-section-label">Threads</div>';
+      html += regular.map(t => threadItemHtml(t, false)).join("");
+    }
+
+    if (hidden.length) {
+      html += `<div class="threads-section-label toggle-hidden" onclick="toggleHiddenSection()" style="cursor:pointer;">
+        Hidden <span id="hidden-toggle-icon">+</span>
+      </div>`;
+      html += `<div id="hidden-section" style="display:none;">`;
+      html += hidden.map(t => threadItemHtml(t, false)).join("");
+      html += `</div>`;
+    }
+
+    list.innerHTML = html;
 
     list.querySelectorAll(".thread-item").forEach(el => {
-      el.addEventListener("click", function() {
+      el.addEventListener("click", function(e) {
+        if (e.target.closest(".thread-actions")) return;
         openThread(this.dataset.threadId, this.dataset.threadTitle);
       });
     });
+
+    list.querySelectorAll(".action-rename").forEach(el => {
+      el.addEventListener("click", function(e) {
+        e.stopPropagation();
+        renameThread(this.dataset.id, this.dataset.title);
+      });
+    });
+
+    list.querySelectorAll(".action-hide").forEach(el => {
+      el.addEventListener("click", function(e) {
+        e.stopPropagation();
+        toggleHideThread(this.dataset.id, this.dataset.hidden === "true");
+      });
+    });
+  }
+
+  function threadItemHtml(t, isRock) {
+    return `
+      <div class="thread-item ${t.id === currentThreadId ? 'active' : ''} ${isRock ? 'rock-item' : ''}" data-thread-id="${t.id}" data-thread-title="${escHtml(t.title)}">
+        <div style="display:flex;align-items:center;gap:4px;">
+          ${isRock ? '<span class="rock-dot"></span>' : ''}
+          <div class="thread-title">${escHtml(t.title)}</div>
+          <div class="thread-actions">
+            <button class="action-btn action-rename" data-id="${t.id}" data-title="${escHtml(t.title)}" title="Rename">&#9998;</button>
+            <button class="action-btn action-hide" data-id="${t.id}" data-hidden="${t.hidden}" title="${t.hidden ? 'Unhide' : 'Hide'}">${t.hidden ? '&#128065;' : '&#8722;'}</button>
+          </div>
+        </div>
+        <div class="thread-meta">${escHtml(t.created_by)} - ${timeAgo(t.updated_at)}</div>
+      </div>
+    `;
+  }
+
+  function toggleHiddenSection() {
+    const sec = document.getElementById("hidden-section");
+    const icon = document.getElementById("hidden-toggle-icon");
+    if (!sec) return;
+    const isHidden = sec.style.display === "none";
+    sec.style.display = isHidden ? "block" : "none";
+    if (icon) icon.textContent = isHidden ? "-" : "+";
+  }
+
+  async function renameThread(id, currentTitle) {
+    const newTitle = prompt("Rename thread:", currentTitle);
+    if (!newTitle || !newTitle.trim() || newTitle.trim() === currentTitle) return;
+    await sbPatch("threads?id=eq." + id, { title: newTitle.trim() });
+    if (currentThreadId === id) {
+      document.getElementById("thread-title-display").textContent = newTitle.trim();
+    }
+    await loadThreads();
+  }
+
+  async function toggleHideThread(id, isCurrentlyHidden) {
+    await sbPatch("threads?id=eq." + id, { hidden: !isCurrentlyHidden });
+    if (currentThreadId === id && !isCurrentlyHidden) {
+      document.getElementById("empty-state").style.display = "flex";
+      document.getElementById("chat-view").style.display = "none";
+      currentThreadId = null;
+    }
+    await loadThreads();
   }
 
   function timeAgo(dateStr) {
@@ -870,7 +992,6 @@ Confidentiality:
     document.querySelectorAll(".thread-item").forEach(el => {
       el.classList.toggle("active", el.dataset.threadId === threadId);
     });
-    event && event.currentTarget && event.currentTarget.classList && event.currentTarget.classList.add("active");
 
     // Load messages
     const messages = await sbGet("messages?thread_id=eq." + threadId + "&order=created_at.asc");
