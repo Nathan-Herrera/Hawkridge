@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hawkridge</title>
+  <title>Falconridge</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -509,8 +509,9 @@
       border: none;
       color: var(--text);
       cursor: pointer;
-      padding: 4px;
-      font-size: 18px;
+      padding: 6px 8px;
+      font-size: 20px;
+      line-height: 1;
     }
 
     #sidebar-overlay {
@@ -524,15 +525,42 @@
     @media (max-width: 640px) {
       #sidebar {
         position: fixed;
-        left: -240px;
+        left: -260px;
         top: 0;
         bottom: 0;
+        width: 260px;
+        min-width: 260px;
         z-index: 20;
-        transition: left 0.2s ease;
+        transition: left 0.22s ease;
       }
       #sidebar.open { left: 0; }
       #sidebar-overlay.open { display: block; }
       #sidebar-toggle { display: block; }
+
+      #topbar { padding: 10px 12px; }
+      #thread-title-display { font-size: 13px; }
+
+      #messages { padding: 12px 10px; gap: 10px; }
+      .bubble { font-size: 14px; padding: 9px 12px; max-width: 88%; }
+      .msg-inner { max-width: 88%; }
+
+      #composer {
+        padding: 8px 10px;
+        padding-bottom: max(8px, env(safe-area-inset-bottom));
+        gap: 6px;
+      }
+      #user-input { font-size: 16px; padding: 10px 12px; }
+      #send-btn { height: 44px; padding: 0 14px; font-size: 15px; }
+
+      .quick-prompts { gap: 6px; }
+      .quick-prompt { font-size: 13px; padding: 8px 14px; }
+
+      #empty-state { padding: 1.5rem 1rem; }
+      #empty-state p { font-size: 13px; }
+
+      .auth-logo { width: 32px; height: 32px; font-size: 16px; }
+      #auth-card { padding: 1.5rem; }
+      #auth-card h1 { font-size: 17px; }
     }
 
     .threads-empty {
@@ -590,7 +618,7 @@
   <div id="auth-card">
     <div class="auth-logo">H</div>
     <h1 id="auth-title">Sign in</h1>
-    <p class="sub" id="auth-sub">Hawkridge internal workspace</p>
+    <p class="sub" id="auth-sub">Falconridge internal workspace</p>
     <div class="field">
       <label>Username</label>
       <input type="text" id="auth-username" placeholder="e.g. Nathan" maxlength="30" autocomplete="username" />
@@ -620,7 +648,7 @@
       <div class="sidebar-top">
         <div class="sidebar-brand">
           <div class="brand-icon">H</div>
-          <span class="brand-name">Hawkridge</span>
+          <span class="brand-name">Falconridge</span>
         </div>
         <button class="new-thread-btn" onclick="newThread()">
           <span class="plus">+</span> New thread
@@ -645,14 +673,14 @@
     <div id="main">
       <div id="topbar">
         <button id="sidebar-toggle" onclick="openSidebar()">&#9776;</button>
-        <span id="thread-title-display">Hawkridge</span>
+        <span id="thread-title-display">Falconridge</span>
         <span class="online-badge" id="user-badge"></span>
       </div>
 
       <!-- Empty state -->
       <div id="empty-state">
         <div class="empty-icon">H</div>
-        <h2>Hawkridge workspace</h2>
+        <h2>Falconridge workspace</h2>
         <p>Start a new thread or pick up where you left off. All threads are shared between you and TJ.</p>
         <div class="quick-prompts">
           <button class="quick-prompt" onclick="startQuickPrompt('Pressure-test our fund thesis. What are the weakest assumptions?')">Pressure-test thesis</button>
@@ -660,7 +688,7 @@
           <button class="quick-prompt" onclick="startQuickPrompt('Review our fund economics. What should our management fee, carry, and hurdle look like at £25m vs £100m AUM?')">Fund economics</button>
           <button class="quick-prompt" onclick="startQuickPrompt('What are the key regulatory steps we need to take before launching? We are not FCA authorised yet.')">Regulatory roadmap</button>
           <button class="quick-prompt" onclick="startQuickPrompt('Help us build a longlist of UK fund-of-funds and family offices that back emerging managers.')">LP longlist</button>
-          <button class="quick-prompt" onclick="startQuickPrompt('Draft a one-page investment thesis summary for Hawkridge Fund I. Ask me for any details you need.')">One-page thesis</button>
+          <button class="quick-prompt" onclick="startQuickPrompt('Draft a one-page investment thesis summary for Falconridge Fund I. Ask me for any details you need.')">One-page thesis</button>
         </div>
       </div>
 
@@ -680,7 +708,7 @@
   const SUPABASE_URL = "https://phdgyyhwwhcccxndcthg.supabase.co";
   const SUPABASE_KEY = "sb_publishable_s-LXOeS3VbA1TY6OtIkANA_Lzt2MZo4";
 
-  const SYSTEM_PROMPT = `You are supporting two founders building an AI-native venture capital fund in the UK called Hawkridge.
+  const SYSTEM_PROMPT = `You are supporting two founders building an AI-native venture capital fund in the UK called Falconridge.
 
 The founders:
 - Nathan: ACA, 5 years in profession, Assistant Manager in deal advisory at a top 50 mid-market accounting firm. Background in audit before deals.
@@ -772,7 +800,7 @@ Confidentiality:
   function toggleAuthMode() {
     isRegisterMode = !isRegisterMode;
     document.getElementById("auth-title").textContent = isRegisterMode ? "Create account" : "Sign in";
-    document.getElementById("auth-sub").textContent = isRegisterMode ? "Set up your Hawkridge access" : "Hawkridge internal workspace";
+    document.getElementById("auth-sub").textContent = isRegisterMode ? "Set up your Falconridge access" : "Falconridge internal workspace";
     document.getElementById("auth-btn").textContent = isRegisterMode ? "Create account" : "Sign in";
     document.getElementById("confirm-field").style.display = isRegisterMode ? "block" : "none";
     document.getElementById("auth-toggle-text").textContent = isRegisterMode ? "Already have an account?" : "No account?";
@@ -1117,25 +1145,30 @@ Confidentiality:
         },
         body: JSON.stringify({
           model: "claude-sonnet-4-6",
-          max_tokens: 1500,
+          max_tokens: 2000,
           system: SYSTEM_PROMPT,
+          tools: [{ type: "web_search_20250305", name: "web_search" }],
           messages: conversationHistory
         })
       });
 
       const data = await response.json();
 
-      if (data.content && data.content[0]) {
-        const reply = data.content[0].text;
+      if (data.content && data.content.length > 0) {
+        const reply = data.content
+          .filter(b => b.type === "text")
+          .map(b => b.text)
+          .join("\n");
+        const finalReply = reply || "I searched but couldn't find a clear answer.";
         thinkingBubble.classList.remove("thinking");
-        thinkingBubble.innerHTML = formatText(reply);
-        conversationHistory.push({ role: "assistant", content: reply });
+        thinkingBubble.innerHTML = formatText(finalReply);
+        conversationHistory.push({ role: "assistant", content: finalReply });
 
         // Save assistant message
         await sbPost("messages", {
           thread_id: currentThreadId,
           role: "assistant",
-          content: reply,
+          content: finalReply,
           username: "Claude"
         });
 
