@@ -860,7 +860,6 @@ Confidentiality:
 
     // Highlight active thread
     document.querySelectorAll(".thread-item").forEach(el => el.classList.remove("active"));
-    event && event.currentTarget && event.currentTarget.classList && event.currentTarget.classList.add("active");
 
     // Load messages
     const messages = await sbGet("messages?thread_id=eq." + threadId + "&order=created_at.asc");
