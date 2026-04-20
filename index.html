@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hawkridge Workspace</title>
+  <title>Hawkridge</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -11,15 +11,22 @@
       --bg: #0f0f0f;
       --bg-2: #1a1a1a;
       --bg-3: #242424;
-      --border: rgba(255,255,255,0.1);
-      --border-2: rgba(255,255,255,0.18);
+      --bg-4: #2e2e2e;
+      --border: rgba(255,255,255,0.08);
+      --border-2: rgba(255,255,255,0.14);
       --text: #f0f0f0;
-      --text-2: #999;
+      --text-2: #888;
+      --text-3: #555;
       --accent: #1D9E75;
-      --accent-bg: rgba(29,158,117,0.12);
-      --blue-bg: rgba(55,138,221,0.12);
+      --accent-dim: rgba(29,158,117,0.15);
+      --accent-border: rgba(29,158,117,0.3);
+      --blue-dim: rgba(55,138,221,0.12);
+      --blue-border: rgba(55,138,221,0.25);
+      --blue: #378ADD;
+      --danger: #e24b4a;
       --radius: 12px;
       --radius-sm: 8px;
+      --radius-xs: 6px;
     }
 
     body {
@@ -28,64 +35,51 @@
       color: var(--text);
       font-size: 15px;
       line-height: 1.6;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
     }
 
-    /* Lock screen */
-    #lock-screen {
+    /* AUTH */
+    #auth-screen {
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
     }
 
-    #lock-card {
+    #auth-card {
       background: var(--bg-2);
       border: 0.5px solid var(--border-2);
       border-radius: var(--radius);
       padding: 2rem;
       width: 100%;
-      max-width: 380px;
+      max-width: 360px;
     }
 
-    .lock-logo {
-      width: 36px;
-      height: 36px;
-      background: var(--accent-bg);
+    .auth-logo {
+      width: 38px;
+      height: 38px;
+      background: var(--accent-dim);
       border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 1.25rem;
-    }
-
-    .lock-logo svg { width: 18px; height: 18px; fill: var(--accent); }
-
-    #lock-card h1 {
       font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 4px;
+      font-weight: 700;
+      color: var(--accent);
     }
 
-    #lock-card p {
-      font-size: 13px;
-      color: var(--text-2);
-      margin-bottom: 1.5rem;
-    }
+    #auth-card h1 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    #auth-card .sub { font-size: 13px; color: var(--text-2); margin-bottom: 1.5rem; }
 
-    .field {
-      margin-bottom: 10px;
-    }
+    .field { margin-bottom: 10px; }
+    .field label { display: block; font-size: 12px; color: var(--text-2); margin-bottom: 4px; }
 
-    .field label {
-      display: block;
-      font-size: 12px;
-      color: var(--text-2);
-      margin-bottom: 4px;
-    }
-
-    input[type="text"],
-    input[type="password"] {
+    input[type="text"], input[type="password"] {
       width: 100%;
       background: var(--bg-3);
       border: 0.5px solid var(--border-2);
@@ -95,13 +89,13 @@
       padding: 9px 12px;
       outline: none;
       transition: border-color 0.15s;
+      font-family: inherit;
     }
-
     input:focus { border-color: var(--accent); }
 
-    #enter-btn {
+    .btn-primary {
       width: 100%;
-      margin-top: 16px;
+      margin-top: 14px;
       background: var(--accent);
       border: none;
       border-radius: var(--radius-sm);
@@ -111,23 +105,184 @@
       padding: 10px;
       cursor: pointer;
       transition: opacity 0.15s;
+      font-family: inherit;
     }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:disabled { opacity: 0.4; cursor: default; }
 
-    #enter-btn:hover { opacity: 0.88; }
+    .auth-toggle {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .auth-toggle a { color: var(--accent); cursor: pointer; text-decoration: none; }
 
-    #lock-error {
+    .auth-error {
       font-size: 12px;
-      color: #e24b4a;
+      color: var(--danger);
       margin-top: 10px;
       display: none;
     }
 
-    /* App */
+    /* APP LAYOUT */
     #app {
       display: none;
-      flex-direction: column;
       height: 100vh;
       height: 100dvh;
+    }
+
+    .layout {
+      display: flex;
+      height: 100%;
+    }
+
+    /* SIDEBAR */
+    #sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--bg-2);
+      border-right: 0.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .sidebar-top {
+      padding: 14px 12px 10px;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--accent-dim);
+      border-radius: var(--radius-xs);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .brand-name { font-size: 14px; font-weight: 600; }
+
+    .new-thread-btn {
+      width: 100%;
+      background: var(--bg-3);
+      border: 0.5px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 13px;
+      padding: 8px 10px;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+      font-family: inherit;
+    }
+    .new-thread-btn:hover { background: var(--bg-4); }
+    .new-thread-btn .plus { font-size: 16px; color: var(--accent); line-height: 1; }
+
+    .threads-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 6px;
+    }
+
+    .thread-item {
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.12s;
+      margin-bottom: 2px;
+    }
+    .thread-item:hover { background: var(--bg-3); }
+    .thread-item.active { background: var(--bg-3); border: 0.5px solid var(--border-2); }
+
+    .thread-title {
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
+    }
+
+    .thread-meta {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+
+    .sidebar-bottom {
+      padding: 10px 12px;
+      border-top: 0.5px solid var(--border);
+    }
+
+    .api-key-row {
+      margin-bottom: 8px;
+    }
+
+    .api-key-row label { font-size: 11px; color: var(--text-2); display: block; margin-bottom: 3px; }
+
+    .api-key-row input {
+      font-size: 12px;
+      padding: 6px 10px;
+    }
+
+    .user-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--blue-dim);
+      border: 0.5px solid var(--blue-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--blue);
+      flex-shrink: 0;
+    }
+
+    .user-name { font-size: 13px; font-weight: 500; flex: 1; }
+
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--text-3);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 4px;
+      transition: color 0.15s;
+      font-family: inherit;
+    }
+    .logout-btn:hover { color: var(--text); }
+
+    /* MAIN */
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      height: 100%;
     }
 
     #topbar {
@@ -138,20 +293,83 @@
       align-items: center;
       gap: 10px;
       flex-shrink: 0;
+      min-height: 52px;
     }
 
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    #thread-title-display {
+      font-size: 14px;
+      font-weight: 500;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-    #topbar .title { font-size: 14px; font-weight: 600; }
-
-    #topbar .user-badge {
-      margin-left: auto;
-      font-size: 12px;
+    .online-badge {
+      font-size: 11px;
       color: var(--text-2);
       background: var(--bg-3);
       border: 0.5px solid var(--border);
       border-radius: 20px;
       padding: 3px 10px;
+      flex-shrink: 0;
+    }
+
+    /* EMPTY STATE */
+    #empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .empty-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--accent-dim);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    #empty-state h2 { font-size: 16px; font-weight: 500; margin-bottom: 6px; }
+    #empty-state p { font-size: 13px; color: var(--text-2); margin-bottom: 1.5rem; max-width: 280px; }
+
+    .quick-prompts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      max-width: 480px;
+    }
+
+    .quick-prompt {
+      background: var(--bg-2);
+      border: 0.5px solid var(--border-2);
+      border-radius: 20px;
+      padding: 7px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      color: var(--text);
+      font-family: inherit;
+    }
+    .quick-prompt:hover { background: var(--bg-3); border-color: var(--accent-border); color: var(--accent); }
+
+    /* CHAT */
+    #chat-view {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
     }
 
     #messages {
@@ -163,18 +381,13 @@
       gap: 14px;
     }
 
-    .msg { display: flex; gap: 10px; max-width: 100%; }
+    .msg { display: flex; gap: 10px; }
     .msg.user { flex-direction: row-reverse; }
 
-    .msg-inner { display: flex; flex-direction: column; max-width: 82%; }
+    .msg-inner { display: flex; flex-direction: column; max-width: 80%; }
     .msg.user .msg-inner { align-items: flex-end; }
 
-    .msg-name {
-      font-size: 11px;
-      color: var(--text-2);
-      margin-bottom: 3px;
-      padding: 0 2px;
-    }
+    .msg-name { font-size: 11px; color: var(--text-2); margin-bottom: 3px; padding: 0 2px; }
 
     .bubble {
       padding: 10px 14px;
@@ -185,8 +398,8 @@
     }
 
     .msg.user .bubble {
-      background: var(--blue-bg);
-      border: 0.5px solid rgba(55,138,221,0.25);
+      background: var(--blue-dim);
+      border: 0.5px solid var(--blue-border);
       border-radius: 16px 16px 4px 16px;
     }
 
@@ -196,16 +409,12 @@
       border-radius: 16px 16px 16px 4px;
     }
 
-    .msg.system-note {
-      justify-content: center;
-    }
-
+    .msg.system-note { justify-content: center; }
     .msg.system-note .bubble {
       background: transparent;
       border: none;
       font-size: 12px;
-      color: var(--text-2);
-      text-align: center;
+      color: var(--text-3);
       padding: 4px 0;
     }
 
@@ -221,11 +430,10 @@
       flex-shrink: 0;
       margin-top: 16px;
     }
+    .avatar.user-av { background: var(--blue-dim); color: var(--blue); border: 0.5px solid var(--blue-border); }
+    .avatar.ai-av { background: var(--accent-dim); color: var(--accent); border: 0.5px solid var(--accent-border); }
 
-    .avatar.user-av { background: var(--blue-bg); color: #378ADD; border: 0.5px solid rgba(55,138,221,0.3); }
-    .avatar.ai-av { background: var(--accent-bg); color: var(--accent); border: 0.5px solid rgba(29,158,117,0.3); }
-
-    .thinking { opacity: 0.45; font-style: italic; }
+    .thinking { opacity: 0.4; font-style: italic; }
 
     pre {
       background: var(--bg-3);
@@ -247,7 +455,7 @@
       font-size: 12px;
     }
 
-    /* Composer */
+    /* COMPOSER */
     #composer {
       background: var(--bg-2);
       border-top: 0.5px solid var(--border);
@@ -274,7 +482,6 @@
       font-family: inherit;
       transition: border-color 0.15s;
     }
-
     #user-input:focus { border-color: var(--accent); }
     #user-input::placeholder { color: var(--text-2); }
 
@@ -290,53 +497,148 @@
       cursor: pointer;
       flex-shrink: 0;
       transition: opacity 0.15s;
+      font-family: inherit;
     }
-
     #send-btn:hover { opacity: 0.88; }
     #send-btn:disabled { opacity: 0.4; cursor: default; }
+
+    /* MOBILE */
+    #sidebar-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 18px;
+    }
+
+    #sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 10;
+    }
+
+    @media (max-width: 640px) {
+      #sidebar {
+        position: fixed;
+        left: -240px;
+        top: 0;
+        bottom: 0;
+        z-index: 20;
+        transition: left 0.2s ease;
+      }
+      #sidebar.open { left: 0; }
+      #sidebar-overlay.open { display: block; }
+      #sidebar-toggle { display: block; }
+    }
+
+    .threads-empty {
+      padding: 20px 10px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-3);
+    }
   </style>
 </head>
 <body>
 
-<div id="lock-screen">
-  <div id="lock-card">
-    <div class="lock-logo">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-    </div>
-    <h1>Hawkridge</h1>
-    <p>Internal workspace. Enter your details to continue.</p>
+<!-- AUTH -->
+<div id="auth-screen">
+  <div id="auth-card">
+    <div class="auth-logo">H</div>
+    <h1 id="auth-title">Sign in</h1>
+    <p class="sub" id="auth-sub">Hawkridge internal workspace</p>
     <div class="field">
-      <label>Your name</label>
-      <input type="text" id="name-input" placeholder="Nathan or TJ" maxlength="20" />
-    </div>
-    <div class="field">
-      <label>Passcode</label>
-      <input type="password" id="passcode-input" placeholder="Shared passcode" />
+      <label>Username</label>
+      <input type="text" id="auth-username" placeholder="e.g. Nathan" maxlength="30" autocomplete="username" />
     </div>
     <div class="field">
-      <label>Anthropic API key</label>
-      <input type="password" id="api-key-input" placeholder="sk-ant-..." />
+      <label>Password</label>
+      <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password" />
     </div>
-    <button id="enter-btn" onclick="unlock()">Enter workspace</button>
-    <div id="lock-error">Incorrect passcode. Try again.</div>
+    <div class="field" id="confirm-field" style="display:none;">
+      <label>Confirm password</label>
+      <input type="password" id="auth-confirm" placeholder="Confirm password" />
+    </div>
+    <button class="btn-primary" id="auth-btn" onclick="handleAuth()">Sign in</button>
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-toggle">
+      <span id="auth-toggle-text">No account?</span>
+      <a onclick="toggleAuthMode()"> <span id="auth-toggle-link">Register</span></a>
+    </div>
   </div>
 </div>
 
+<!-- APP -->
 <div id="app">
-  <div id="topbar">
-    <div class="dot"></div>
-    <span class="title">Hawkridge</span>
-    <span class="user-badge" id="user-label"></span>
-  </div>
-  <div id="messages"></div>
-  <div id="composer">
-    <textarea id="user-input" placeholder="Ask anything..." rows="1"></textarea>
-    <button id="send-btn" onclick="sendMessage()">Send</button>
+  <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <div class="layout">
+    <div id="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-brand">
+          <div class="brand-icon">H</div>
+          <span class="brand-name">Hawkridge</span>
+        </div>
+        <button class="new-thread-btn" onclick="newThread()">
+          <span class="plus">+</span> New thread
+        </button>
+      </div>
+      <div class="threads-list" id="threads-list">
+        <div class="threads-empty">No threads yet</div>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="api-key-row">
+          <label>Anthropic API key</label>
+          <input type="password" id="api-key-input" placeholder="sk-ant-..." />
+        </div>
+        <div class="user-row">
+          <div class="user-avatar" id="user-avatar"></div>
+          <span class="user-name" id="user-name-display"></span>
+          <button class="logout-btn" onclick="logout()">Sign out</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="main">
+      <div id="topbar">
+        <button id="sidebar-toggle" onclick="openSidebar()">&#9776;</button>
+        <span id="thread-title-display">Hawkridge</span>
+        <span class="online-badge" id="user-badge"></span>
+      </div>
+
+      <!-- Empty state -->
+      <div id="empty-state">
+        <div class="empty-icon">H</div>
+        <h2>Hawkridge workspace</h2>
+        <p>Start a new thread or pick up where you left off. All threads are shared between you and TJ.</p>
+        <div class="quick-prompts">
+          <button class="quick-prompt" onclick="startQuickPrompt('Pressure-test our fund thesis. What are the weakest assumptions?')">Pressure-test thesis</button>
+          <button class="quick-prompt" onclick="startQuickPrompt('Draft a concise LP outreach email for a UK family office. Ask me for details first.')">Draft LP email</button>
+          <button class="quick-prompt" onclick="startQuickPrompt('Review our fund economics. What should our management fee, carry, and hurdle look like at £25m vs £100m AUM?')">Fund economics</button>
+          <button class="quick-prompt" onclick="startQuickPrompt('What are the key regulatory steps we need to take before launching? We are not FCA authorised yet.')">Regulatory roadmap</button>
+          <button class="quick-prompt" onclick="startQuickPrompt('Help us build a longlist of UK fund-of-funds and family offices that back emerging managers.')">LP longlist</button>
+          <button class="quick-prompt" onclick="startQuickPrompt('Draft a one-page investment thesis summary for Hawkridge Fund I. Ask me for any details you need.')">One-page thesis</button>
+        </div>
+      </div>
+
+      <!-- Chat view -->
+      <div id="chat-view">
+        <div id="messages"></div>
+        <div id="composer">
+          <textarea id="user-input" placeholder="Ask anything..." rows="1"></textarea>
+          <button id="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-  const PASSCODE = "VCFund11!";
+  const SUPABASE_URL = "https://phdgyyhwwhcccxndcthg.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_s-LXOeS3VbA1TY6OtIkANA_Lzt2MZo4";
 
   const SYSTEM_PROMPT = `You are supporting two founders building an AI-native venture capital fund in the UK called Hawkridge.
 
@@ -378,32 +680,222 @@ Confidentiality:
 - Never reproduce founder data verbatim in summaries that might be shared externally without explicit instruction.
 - When drafting anything investor-facing or founder-facing, ask who the audience is before drafting.`;
 
-  let userName = "";
-  let apiKey = "";
+  // State
+  let currentUser = null;
+  let currentThreadId = null;
   let conversationHistory = [];
+  let isRegisterMode = false;
 
-  function unlock() {
-    const name = document.getElementById("name-input").value.trim();
-    const passcode = document.getElementById("passcode-input").value.trim();
-    const key = document.getElementById("api-key-input").value.trim();
-
-    if (passcode !== PASSCODE) {
-      document.getElementById("lock-error").style.display = "block";
-      return;
-    }
-    if (!name) { alert("Please enter your name."); return; }
-    if (!key.startsWith("sk-ant-")) { alert("Please enter a valid Anthropic API key."); return; }
-
-    userName = name;
-    apiKey = key;
-    document.getElementById("lock-error").style.display = "none";
-    document.getElementById("user-label").textContent = userName;
-    document.getElementById("lock-screen").style.display = "none";
-    document.getElementById("app").style.display = "flex";
-
-    addSystemNote("Signed in as " + userName);
+  // Supabase helpers
+  async function sbGet(path) {
+    const r = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
+      headers: { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY }
+    });
+    return r.json();
   }
 
+  async function sbPost(path, body) {
+    const r = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify(body)
+    });
+    return r.json();
+  }
+
+  async function sbPatch(path, body) {
+    await fetch(SUPABASE_URL + "/rest/v1/" + path, {
+      method: "PATCH",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    });
+  }
+
+  // Simple hash (not cryptographic - fine for this use case)
+  async function hashPassword(password) {
+    const msgBuffer = new TextEncoder().encode(password + "hwkrdg_salt");
+    const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  // Auth
+  function toggleAuthMode() {
+    isRegisterMode = !isRegisterMode;
+    document.getElementById("auth-title").textContent = isRegisterMode ? "Create account" : "Sign in";
+    document.getElementById("auth-sub").textContent = isRegisterMode ? "Set up your Hawkridge access" : "Hawkridge internal workspace";
+    document.getElementById("auth-btn").textContent = isRegisterMode ? "Create account" : "Sign in";
+    document.getElementById("confirm-field").style.display = isRegisterMode ? "block" : "none";
+    document.getElementById("auth-toggle-text").textContent = isRegisterMode ? "Already have an account?" : "No account?";
+    document.getElementById("auth-toggle-link").textContent = isRegisterMode ? "Sign in" : "Register";
+    document.getElementById("auth-error").style.display = "none";
+  }
+
+  function showAuthError(msg) {
+    const el = document.getElementById("auth-error");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
+
+  async function handleAuth() {
+    const username = document.getElementById("auth-username").value.trim();
+    const password = document.getElementById("auth-password").value;
+    const btn = document.getElementById("auth-btn");
+
+    if (!username || !password) { showAuthError("Please fill in all fields."); return; }
+
+    btn.disabled = true;
+    btn.textContent = "Please wait...";
+
+    try {
+      const hashed = await hashPassword(password);
+
+      if (isRegisterMode) {
+        const confirm = document.getElementById("auth-confirm").value;
+        if (password !== confirm) { showAuthError("Passwords do not match."); btn.disabled = false; btn.textContent = "Create account"; return; }
+        const existing = await sbGet("users?username=eq." + encodeURIComponent(username));
+        if (existing.length > 0) { showAuthError("Username already taken."); btn.disabled = false; btn.textContent = "Create account"; return; }
+        const result = await sbPost("users", { username, password: hashed });
+        if (result.error) { showAuthError("Error creating account."); btn.disabled = false; btn.textContent = "Create account"; return; }
+        currentUser = { username };
+      } else {
+        const users = await sbGet("users?username=eq." + encodeURIComponent(username) + "&password=eq." + encodeURIComponent(hashed));
+        if (!users.length) { showAuthError("Incorrect username or password."); btn.disabled = false; btn.textContent = "Sign in"; return; }
+        currentUser = { username };
+      }
+
+      sessionStorage.setItem("hw_user", username);
+      enterApp();
+    } catch(e) {
+      showAuthError("Something went wrong. Check your connection.");
+      btn.disabled = false;
+      btn.textContent = isRegisterMode ? "Create account" : "Sign in";
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem("hw_user");
+    currentUser = null;
+    currentThreadId = null;
+    conversationHistory = [];
+    document.getElementById("app").style.display = "none";
+    document.getElementById("auth-screen").style.display = "flex";
+    document.getElementById("auth-username").value = "";
+    document.getElementById("auth-password").value = "";
+    document.getElementById("auth-btn").disabled = false;
+    document.getElementById("auth-btn").textContent = "Sign in";
+  }
+
+  function enterApp() {
+    document.getElementById("auth-screen").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    const u = currentUser.username;
+    document.getElementById("user-name-display").textContent = u;
+    document.getElementById("user-avatar").textContent = u.substring(0, 2).toUpperCase();
+    document.getElementById("user-badge").textContent = u;
+    loadThreads();
+  }
+
+  // Threads
+  async function loadThreads() {
+    const threads = await sbGet("threads?order=updated_at.desc");
+    renderThreads(threads);
+  }
+
+  function renderThreads(threads) {
+    const list = document.getElementById("threads-list");
+    if (!threads.length) {
+      list.innerHTML = '<div class="threads-empty">No threads yet</div>';
+      return;
+    }
+    list.innerHTML = threads.map(t => `
+      <div class="thread-item ${t.id === currentThreadId ? 'active' : ''}" onclick="openThread('${t.id}', ${JSON.stringify(t.title).replace(/'/g, "\\'")})">
+        <div class="thread-title">${escHtml(t.title)}</div>
+        <div class="thread-meta">${t.created_by} - ${timeAgo(t.updated_at)}</div>
+      </div>
+    `).join("");
+  }
+
+  function timeAgo(dateStr) {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return mins + "m ago";
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + "h ago";
+    return Math.floor(hrs / 24) + "d ago";
+  }
+
+  async function newThread() {
+    const title = prompt("Thread title:");
+    if (!title || !title.trim()) return;
+    closeSidebar();
+    const result = await sbPost("threads", {
+      title: title.trim(),
+      created_by: currentUser.username
+    });
+    if (result && result[0]) {
+      await loadThreads();
+      openThread(result[0].id, result[0].title);
+    }
+  }
+
+  async function openThread(threadId, title) {
+    currentThreadId = threadId;
+    conversationHistory = [];
+    document.getElementById("thread-title-display").textContent = title;
+    document.getElementById("empty-state").style.display = "none";
+    document.getElementById("chat-view").style.display = "flex";
+    document.getElementById("messages").innerHTML = "";
+    closeSidebar();
+
+    // Highlight active thread
+    document.querySelectorAll(".thread-item").forEach(el => el.classList.remove("active"));
+    event && event.currentTarget && event.currentTarget.classList && event.currentTarget.classList.add("active");
+
+    // Load messages
+    const messages = await sbGet("messages?thread_id=eq." + threadId + "&order=created_at.asc");
+    messages.forEach(m => {
+      addMessageToUI(m.role, m.content, m.username || (m.role === "assistant" ? "Claude" : m.username));
+      if (m.role === "user" || m.role === "assistant") {
+        conversationHistory.push({ role: m.role, content: m.content });
+      }
+    });
+
+    if (messages.length === 0) {
+      addSystemNote("Thread started by " + currentUser.username);
+    }
+  }
+
+  async function startQuickPrompt(prompt) {
+    const title = prompt.substring(0, 40) + (prompt.length > 40 ? "..." : "");
+    const result = await sbPost("threads", {
+      title: title,
+      created_by: currentUser.username
+    });
+    if (result && result[0]) {
+      await loadThreads();
+      currentThreadId = result[0].id;
+      conversationHistory = [];
+      document.getElementById("thread-title-display").textContent = result[0].title;
+      document.getElementById("empty-state").style.display = "none";
+      document.getElementById("chat-view").style.display = "flex";
+      document.getElementById("messages").innerHTML = "";
+      addSystemNote("Thread started by " + currentUser.username);
+      await sendMessageWithText(prompt);
+    }
+  }
+
+  // Messaging
   function addSystemNote(text) {
     const msgs = document.getElementById("messages");
     const row = document.createElement("div");
@@ -413,7 +905,7 @@ Confidentiality:
     scrollBottom();
   }
 
-  function addMessage(role, text, name) {
+  function addMessageToUI(role, text, name) {
     const msgs = document.getElementById("messages");
     const row = document.createElement("div");
     row.className = "msg " + role;
@@ -438,10 +930,11 @@ Confidentiality:
     inner.appendChild(nameEl);
     inner.appendChild(bubble);
 
-    row.appendChild(av);
     if (role === "user") {
-      row.insertBefore(inner, av);
+      row.appendChild(inner);
+      row.appendChild(av);
     } else {
+      row.appendChild(av);
       row.appendChild(inner);
     }
 
@@ -450,36 +943,34 @@ Confidentiality:
     return bubble;
   }
 
-  function escHtml(t) {
-    return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  }
-
-  function formatText(text) {
-    let t = escHtml(text);
-    t = t.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
-    t = t.replace(/`([^`\n]+)`/g, '<code>$1</code>');
-    t = t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    t = t.replace(/\n/g, '<br>');
-    return t;
-  }
-
-  function scrollBottom() {
-    const msgs = document.getElementById("messages");
-    msgs.scrollTop = msgs.scrollHeight;
-  }
-
   async function sendMessage() {
     const input = document.getElementById("user-input");
     const text = input.value.trim();
-    if (!text) return;
-
+    if (!text || !currentThreadId) return;
     input.value = "";
     input.style.height = "auto";
+    await sendMessageWithText(text);
+  }
 
-    addMessage("user", text, userName);
+  async function sendMessageWithText(text) {
+    const apiKey = document.getElementById("api-key-input").value.trim();
+    if (!apiKey) { alert("Please enter your Anthropic API key in the sidebar."); return; }
+    if (!currentThreadId) return;
+
+    // Save user message
+    await sbPost("messages", {
+      thread_id: currentThreadId,
+      role: "user",
+      content: text,
+      username: currentUser.username
+    });
+
+    await sbPatch("threads?id=eq." + currentThreadId, { updated_at: new Date().toISOString() });
+
+    addMessageToUI("user", text, currentUser.username);
     conversationHistory.push({ role: "user", content: text });
 
-    const thinkingBubble = addMessage("assistant", "Thinking...", "Claude");
+    const thinkingBubble = addMessageToUI("assistant", "Thinking...", "Claude");
     thinkingBubble.classList.add("thinking");
     document.getElementById("send-btn").disabled = true;
 
@@ -507,32 +998,85 @@ Confidentiality:
         thinkingBubble.classList.remove("thinking");
         thinkingBubble.innerHTML = formatText(reply);
         conversationHistory.push({ role: "assistant", content: reply });
+
+        // Save assistant message
+        await sbPost("messages", {
+          thread_id: currentThreadId,
+          role: "assistant",
+          content: reply,
+          username: "Claude"
+        });
+
+        await sbPatch("threads?id=eq." + currentThreadId, { updated_at: new Date().toISOString() });
+        await loadThreads();
       } else {
         thinkingBubble.classList.remove("thinking");
         thinkingBubble.textContent = "Error: " + (data.error?.message || "Unknown error.");
       }
-    } catch (err) {
+    } catch(e) {
       thinkingBubble.classList.remove("thinking");
       thinkingBubble.textContent = "Network error. Check your API key and connection.";
     }
 
     document.getElementById("send-btn").disabled = false;
-    scrollBottom();
   }
 
+  // Utils
+  function escHtml(t) {
+    return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  function formatText(text) {
+    let t = escHtml(text);
+    t = t.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
+    t = t.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    t = t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    t = t.replace(/\n/g, '<br>');
+    return t;
+  }
+
+  function scrollBottom() {
+    const msgs = document.getElementById("messages");
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  // Mobile sidebar
+  function openSidebar() {
+    document.getElementById("sidebar").classList.add("open");
+    document.getElementById("sidebar-overlay").classList.add("open");
+  }
+
+  function closeSidebar() {
+    document.getElementById("sidebar").classList.remove("open");
+    document.getElementById("sidebar-overlay").classList.remove("open");
+  }
+
+  // Keyboard
   document.addEventListener("keydown", function(e) {
-    if (e.key === "Enter" && document.activeElement === document.getElementById("passcode-input")) {
-      unlock();
+    if (e.key === "Enter" && (document.activeElement === document.getElementById("auth-password") || document.activeElement === document.getElementById("auth-confirm"))) {
+      handleAuth();
     }
   });
 
-  document.getElementById("user-input").addEventListener("keydown", function(e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+  document.addEventListener("DOMContentLoaded", function() {
+    const textarea = document.getElementById("user-input");
+    if (textarea) {
+      textarea.addEventListener("keydown", function(e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+        this.style.height = "auto";
+        this.style.height = Math.min(this.scrollHeight, 120) + "px";
+      });
     }
-    this.style.height = "auto";
-    this.style.height = Math.min(this.scrollHeight, 120) + "px";
+
+    // Check session
+    const saved = sessionStorage.getItem("hw_user");
+    if (saved) {
+      currentUser = { username: saved };
+      enterApp();
+    }
   });
 </script>
 </body>
