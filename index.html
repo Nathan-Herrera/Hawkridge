@@ -779,6 +779,8 @@ Confidentiality:
       showAuthError("Something went wrong. Check your connection.");
       btn.disabled = false;
       btn.textContent = isRegisterMode ? "Create account" : "Sign in";
+      const savedKey = localStorage.getItem("hw_api_key");
+if (savedKey) document.getElementById("api-key-input").value = savedKey;
     }
   }
 
