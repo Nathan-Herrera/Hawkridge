@@ -818,15 +818,21 @@ Confidentiality:
       return;
     }
     list.innerHTML = threads.map(t => `
-      <div class="thread-item ${t.id === currentThreadId ? 'active' : ''}" onclick="openThread('${t.id}', ${JSON.stringify(t.title).replace(/'/g, "\\'")})">
+      <div class="thread-item ${t.id === currentThreadId ? 'active' : ''}" data-thread-id="${t.id}" data-thread-title="${escHtml(t.title)}">
         <div class="thread-title">${escHtml(t.title)}</div>
-        <div class="thread-meta">${t.created_by} - ${timeAgo(t.updated_at)}</div>
+        <div class="thread-meta">${escHtml(t.created_by)} - ${timeAgo(t.updated_at)}</div>
       </div>
     `).join("");
+
+    list.querySelectorAll(".thread-item").forEach(el => {
+      el.addEventListener("click", function() {
+        openThread(this.dataset.threadId, this.dataset.threadTitle);
+      });
+    });
   }
 
   function timeAgo(dateStr) {
-    const diff = Date.now() - new Date(dateStr).getTime();
+    const diff = Date.now() - new Date(dateStr + (dateStr.endsWith("Z") ? "" : "Z")).getTime();
     const mins = Math.floor(diff / 60000);
     if (mins < 1) return "just now";
     if (mins < 60) return mins + "m ago";
@@ -859,7 +865,10 @@ Confidentiality:
     closeSidebar();
 
     // Highlight active thread
-    document.querySelectorAll(".thread-item").forEach(el => el.classList.remove("active"));
+    document.querySelectorAll(".thread-item").forEach(el => {
+      el.classList.toggle("active", el.dataset.threadId === threadId);
+    });
+    event && event.currentTarget && event.currentTarget.classList && event.currentTarget.classList.add("active");
 
     // Load messages
     const messages = await sbGet("messages?thread_id=eq." + threadId + "&order=created_at.asc");
