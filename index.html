@@ -803,6 +803,8 @@ Confidentiality:
     document.getElementById("user-avatar").textContent = u.substring(0, 2).toUpperCase();
     document.getElementById("user-badge").textContent = u;
     loadThreads();
+    const savedKey = localStorage.getItem("hw_api_key");
+if (savedKey) document.getElementById("api-key-input").value = savedKey;
   }
 
   // Threads
